@@ -37,7 +37,7 @@ int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 	}
 	else
 	{
-		printf("Success!\n");
+		//printf("Success!\n");
 	}
 }
 #pragma endregion
@@ -116,7 +116,7 @@ string hexToString(string str) {
 }
 
 
-string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tung sua tham so offset cua ham thanh hex string
+string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng sửa tham số offset hàm này
 {
 	const int offset = stoi(offsetHex, nullptr, 16);
 
@@ -140,24 +140,41 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tung sua 
 
 
 
-//offsec decimal: row + col * 16
+
 void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 {
-	int bytesPerSector; //offset 
 	
+	int bytesPerSector= ReadIntReverse(sector,"B",2); //offset B - 2 bytes
+	cout<<"So byte cua sector: " << bytesPerSector;//"So byte cua sector: " -- chuỗi bên trái là cái này
+	//An xuất các thông tin dưới đây(phần chuỗi bên trái xuất giống slide của thầy ), dùng hàm ReadIntReverse() như ví dụ trên, trình bày đẹp mắt nhưng đùng màu mè:))
+	//An làm xong, Mai kiểm tra lại thông tin được xuất với slide của thầy và xuất thêm đơn vị vào sau (bytes, sector, nếu là index thì bỏ qua)
+	int sectorsPerCluster; //offset D - 1 byte
+	int reservedSectors; //offset E - 2 bytes
+	int fatCount; //offset 10 - 1 byte
+	int sectorsPerTrack; //offset 18 - 1 byte
+	int headsCount; //offset 1A - 2 bytes
+	int hiddenSectors; //offset 1C - 4 bytes
+	int volumeSize; //offset 20 - 4 bytes
+	int fatSize; //offset 24 - 4 bytes
+	int startCluster; //offset 2C - 4 bytes
+	int secondaryInfoSector; //offset 30 - 2 bytes
+	int bootCopySector; //offset 32 - 2 bytes
+
+
+
+
+
+	//de Tung nghien cuu lai
+	int volumeType;//offset 15 - 1 byte
+	string fatCategory;// //offset 52 - 8 bytes
 }
 
 
 int main(int argc, char** argv)
 {
 	BYTE sector[512];
-	ReadSector(L"\\\\.\\D:", 0, sector);
+	ReadSector(L"\\\\.\\D:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
 
-	//demo đọc thử
-	cout << "So byte tren sector: " << endl;
-	cout << ReadIntReverse(sector,"B",2) << endl;
-
-	cout << "\nLoai fat: " << ReadtoString(sector, "52", 5);
 
 	// sử dung code này để đọc fakebootsector
 	//BYTE* test= ReadFakeBootSector();
@@ -166,5 +183,8 @@ int main(int argc, char** argv)
 	//    else cout << "Something is wrong i can feel it";
 	//}
 
+
+
+	ReadBootSector(sector);//Hàm này Tùng, An, Mai viết
 
 }
