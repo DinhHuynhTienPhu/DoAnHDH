@@ -1,8 +1,9 @@
 ﻿#include <windows.h>
-
+#include <iomanip>      // std::setw
 #include <stdio.h>
 #include <cstdint>
 #include<iostream>
+#include<sstream>
 using namespace std;
 #pragma warning(disable:4996)
 
@@ -94,6 +95,47 @@ void WriteFakeBootSector() {
     fclose(fptr);
 
 }
+int hexCharToInt(char a) {
+    if (a >= '0' && a <= '9')
+        return(a - 48);
+    else if (a >= 'A' && a <= 'Z')
+        return(a - 55);
+    else
+        return(a - 87);
+}
+string hexToString(string str) {
+    std::stringstream HexString;
+    for (int i = 0; i < str.length(); i++) {
+        char a = str.at(i++);
+        char b = str.at(i);
+        int x = hexCharToInt(a);
+        int y = hexCharToInt(b);
+        HexString << (char)((16 * x) + y);
+    }
+    return HexString.str();
+}
+
+
+string ReadtoString(BYTE* data, int offset, unsigned int bytes)
+{
+
+    int len = offset + bytes;
+    std::stringstream ss;
+    ss << std::hex;
+    for (int i = offset; i < len; i++)
+    {
+        ss << setw(2) << setfill('0') << (int)data[i];
+        ss << " ";
+    }
+    string result;
+    while (!ss.eof())
+    {
+        std::string temp;
+        ss >> temp;
+        result += hexToString(temp);
+    }
+    return result;
+}
 int main(int argc, char** argv)
 {
     BYTE sector[512];
@@ -102,6 +144,8 @@ int main(int argc, char** argv)
     //demo đọc thử
     cout << "So byte tren sector: " << endl;
     cout << ReadIntReverse(sector,11,2) << endl;
+
+    cout << "\nLoai fat: " << ReadtoString(sector, 82, 5);
 
     // sử dung code này để đọc fakebootsector
     //BYTE* test= ReadFakeBootSector();
