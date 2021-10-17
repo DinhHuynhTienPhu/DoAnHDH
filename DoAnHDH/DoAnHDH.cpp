@@ -144,14 +144,14 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 {
 	
-	int bytesPerSector= ReadIntReverse(sector,"B",2); //offset B - 2 bytes
-	cout<<"So byte cua sector: " << bytesPerSector;//"So byte cua sector: " -- chuỗi bên trái là cái này
+	int bytesPerSector; //offset B - 2 bytes
+	//cout<<"So byte cua sector: " << bytesPerSector;//"So byte cua sector: " -- chuỗi bên trái là cái này
 	//An xuất các thông tin dưới đây(phần chuỗi bên trái xuất giống slide của thầy ), dùng hàm ReadIntReverse() như ví dụ trên, trình bày đẹp mắt nhưng đùng màu mè:))
 	//An làm xong, Mai kiểm tra lại thông tin được xuất với slide của thầy và xuất thêm đơn vị vào sau (bytes, sector, nếu là index thì bỏ qua)
 	int sectorsPerCluster; //offset D - 1 byte
 	int reservedSectors; //offset E - 2 bytes
 	int fatCount; //offset 10 - 1 byte
-	int sectorsPerTrack; //offset 18 - 1 byte
+	int sectorsPerTrack; //offset 18 - 2 byte
 	int headsCount; //offset 1A - 2 bytes
 	int hiddenSectors; //offset 1C - 4 bytes
 	int volumeSize; //offset 20 - 4 bytes
@@ -160,7 +160,31 @@ void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 	int secondaryInfoSector; //offset 30 - 2 bytes
 	int bootCopySector; //offset 32 - 2 bytes
 
+	bytesPerSector = ReadIntReverse(sector, "B", 2); //offset B - 2 bytes
+	sectorsPerCluster = ReadIntReverse(sector, "D", 1); //offset D - 1 byte
+	reservedSectors = ReadIntReverse(sector, "E", 2); //offset E - 2 bytes
+	fatCount = ReadIntReverse(sector, "10", 1); //offset 10 - 1 byte
+	sectorsPerTrack = ReadIntReverse(sector, "18", 2); //offset 18 - 2
+	headsCount = ReadIntReverse(sector, "1A", 2); //offset 1A - 2 bytes
+	hiddenSectors = ReadIntReverse(sector, "1C", 4); //offset 1C - 4 bytes
+	volumeSize = ReadIntReverse(sector, "20", 4); //offset 20 - 4 bytes
+	fatSize = ReadIntReverse(sector, "24", 4); //offset 24 - 4 bytes
+	startCluster = ReadIntReverse(sector, "2C", 4); //offset 2C - 4 bytes
+	secondaryInfoSector = ReadIntReverse(sector, "30", 2); //offset 30 - 2 bytes
+	bootCopySector = ReadIntReverse(sector, "32", 2); //offset 32 - 2 bytes
 
+	cout << "+ So byte cua sector: " << bytesPerSector << endl;
+	cout << "+ Sc so sector tren cluster: " << sectorsPerCluster << endl;
+	cout << "+ Sb so sector thuoc vung Bootsector: " << reservedSectors << endl;
+	cout << "+ So bang FAT: " << fatCount << endl;
+	cout << "+ Nf so sector cua track: " << sectorsPerTrack << endl;
+	cout << "+ So luong dau doc: " << headsCount << endl;
+	cout << "+ Khoang cach tu noi mo ta vol den dau vol: " << hiddenSectors << endl;
+	cout << "+ Sv kich thuoc volume: " << volumeSize << endl;
+	cout << "+ Sf kich thuoc moi bang FAT: " << fatSize << endl;
+	cout << "+ Cluster bat dau cua RDET: " << startCluster << endl;
+	cout << "+ Sector chua thong tin phu de (ve cluster trong): " << secondaryInfoSector << endl;
+	cout << "+ Sector chua bang luu cua Bootsector: " << bootCopySector << endl;
 
 
 
@@ -173,7 +197,8 @@ void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 int main(int argc, char** argv)
 {
 	BYTE sector[512];
-	ReadSector(L"\\\\.\\D:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
+	//ReadSector(L"\\\\.\\D:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
+	ReadSector(L"\\\\.\\F:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
 
 
 	// sử dung code này để đọc fakebootsector
