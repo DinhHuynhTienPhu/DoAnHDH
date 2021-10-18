@@ -9,12 +9,11 @@ using namespace std;
 
 
 #pragma region  code cua thay
-int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
+int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512], bool& isRead)
 {
 	int retCode = 0;
 	DWORD bytesRead;
 	HANDLE device = NULL;
-
 	device = CreateFile(drive,    // Drive to open
 		GENERIC_READ,           // Access mode
 		FILE_SHARE_READ | FILE_SHARE_WRITE,        // Share Mode
@@ -26,6 +25,7 @@ int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 	if (device == INVALID_HANDLE_VALUE) // Open Error
 	{
 		printf("CreateFile: %u\n", GetLastError());
+
 		return 1;
 	}
 
@@ -34,10 +34,13 @@ int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 	if (!ReadFile(device, sector, 512, &bytesRead, NULL))
 	{
 		printf("ReadFile: %u\n", GetLastError());
+
 	}
 	else
 	{
-		//printf("Success!\n");
+		printf("Success!\n");
+		isRead = true;
+
 	}
 }
 #pragma endregion
@@ -79,7 +82,8 @@ BYTE* ReadFakeBootSector() {
 void WriteFakeBootSector() {
 	/*Sử dụng hàm này để lưu bootsector đọc được về thành file nhị phân fakebootsector.fake*/
 	BYTE sector[512];
-	ReadSector(L"\\\\.\\G:", 0, sector);
+	bool isRead=false;
+	ReadSector(L"\\\\.\\G:", 0, sector,isRead);
 
 	FILE* fptr;
 
@@ -143,7 +147,12 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 
 void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 {
-	
+	string fatCategory = ReadtoString(sector, "52", 8);// //offset 52 - 8 bytes
+	std::stringstream ss;
+	ss << std::hex;
+	ss << setw(2) << setfill('0') << (int)sector[21];
+	string volumeType;//offset 15 - 1 byte, Loại volume được nhận biết bằng chuỗi thập lục phân (f8 là đĩa cứng)
+	ss >> volumeType;
 	int bytesPerSector = ReadIntReverse(sector, "B", 2); //offset B - 2 bytes
 	//cout<<"So byte cua sector: " << bytesPerSector;//"So byte cua sector: " -- chuỗi bên trái là cái này
 	//An xuất các thông tin dưới đây(phần chuỗi bên trái xuất giống slide của thầy ), dùng hàm ReadIntReverse() như ví dụ trên, trình bày đẹp mắt nhưng đùng màu mè:))
@@ -160,6 +169,8 @@ void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 	int secondaryInfoSector = ReadIntReverse(sector, "30", 2); //offset 30 - 2 bytes
 	int bootCopySector = ReadIntReverse(sector, "32", 2); //offset 32 - 2 bytes
 
+	cout << "+ Loai FAT: " << fatCategory<<endl;
+	cout << "+ Loai volume: " << volumeType<<endl;
 	cout << "+ So byte cua sector: " << bytesPerSector << " bytes" << endl;
 	cout << "+ So sector tren cluster: SC = " << sectorsPerCluster << " sectors" << endl;
 	cout << "+ So sector thuoc vung Bootsector: SB = " << reservedSectors << " sectors" <<endl;
@@ -175,17 +186,16 @@ void ReadBootSector(BYTE* sector)//In cac thong tin o boot sector
 
 
 
-	//de Tung nghien cuu lai
-	int volumeType;//offset 15 - 1 byte
-	string fatCategory;// //offset 52 - 8 bytes
+
+	//cout << volumeType << endl << fatCategory;
 }
 
 
 int main(int argc, char** argv)
 {
 	BYTE sector[512];
-	//ReadSector(L"\\\\.\\D:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
-	ReadSector(L"\\\\.\\F:", 0, sector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
+	bool isRead =false;
+	ReadSector(L"\\\\.\\D:", 0, sector, isRead);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
 
 
 	// sử dung code này để đọc fakebootsector
@@ -195,8 +205,7 @@ int main(int argc, char** argv)
 	//    else cout << "Something is wrong i can feel it";
 	//}
 
-
-
-	ReadBootSector(sector);//Hàm này Tùng, An, Mai viết
+	if(isRead==true)
+		ReadBootSector(sector);
 
 }
