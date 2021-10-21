@@ -3,7 +3,7 @@ struct enrty{  bytes }
 struct fileorfolder{}
 // viết struct để lưu bytes
 
-Function ReadRDETOrSDet(int clusterbatdau,int solantab){ //function đọc RDETorSDET, truyền vào cluster bắt đầu và số lần tab (số lần tab cũng có nghĩa là số thư mục cha của rdet/sdet này, cũng có nghĩa là số lần đệ quy) 
+Function ReadRDETOrSDet(int sectorbatdau,int solantab){ //function đọc RDETorSDET, truyền vào sector bắt đầu và số lần tab (số lần tab cũng có nghĩa là số thư mục cha của rdet/sdet này, cũng có nghĩa là số lần đệ quy) 
 	ý tưởng của hàm này là: có đặt vòng while, mỗi lần vòng while chạy xong cũng có nghĩa là đã đọc xong một fileorfolder của rdetorsdet
 	while(){
 
@@ -30,7 +30,7 @@ Function ReadRDETOrSDet(int clusterbatdau,int solantab){ //function đọc RDETo
 		if(filorfolder.isfile) {//nếu là file thì chỉ đơn giản xuất ra màn hình}
 		else if(fileorfolder.isfolder){
 			//nếu là folder thì gọi lại hàm đọc ReadRDETOrSDet, truyền vào cluster bắt đầu của sdet của folder này, solantab+1 (thụt vô dòng vì là folder con)
-			ReadRDETOrSDet(fileorfolder.clusterbatdau, solantab+1)
+			ReadRDETOrSDet(fileorfolder.GetSectorBatDau(), solantab+1)
 		 }
 		
 
