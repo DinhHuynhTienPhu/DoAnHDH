@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int ReadData(LPCWSTR  drive, int readPoint, BYTE sector[512], int bytes)
+int ReadData(LPCWSTR  drive, int readPoint, BYTE *sector, int bytes)
 {
 	int retCode = 0;
 	DWORD bytesRead;

@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 
-int ReadData(LPCWSTR  drive, int readPoint, BYTE sector[512], int bytes);// thêm tham số bytes cần đọc -> đây không còn là hàm đọc sector nên t đổi tên
+int ReadData(LPCWSTR  drive, int readPoint, BYTE* sector, int bytes);// thêm tham số bytes cần đọc -> đây không còn là hàm đọc sector nên t đổi tên
 
 uint64_t ReadIntReverse(uint8_t* byte, std::string offsetHex, unsigned int count);
 
