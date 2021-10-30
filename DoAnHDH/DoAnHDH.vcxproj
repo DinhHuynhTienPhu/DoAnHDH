@@ -140,6 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DoAnHDH.cpp" />
+    <ClCompile Include="FAT32.cpp" />
+    <ClCompile Include="ReadData.cpp" />
+    <ClCompile Include="TxtFile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FAT32.h" />
+    <ClInclude Include="ReadData.h" />
+    <ClInclude Include="TxtFile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
