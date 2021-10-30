@@ -9,7 +9,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	BYTE bootSector[512];
-	ReadSector(L"\\\\.\\D:", 0, bootSector);// nếu dùng USB thì thay 'D' bằng tên ký tự của USB
+	ReadData(L"\\\\.\\D:", 0, bootSector,512);// ổ đĩa cần đọc, offset đọc, buffer, số byte đọc
 
 	FAT32 volume;
 	volume.read(bootSector);

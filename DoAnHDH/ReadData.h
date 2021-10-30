@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <iomanip>
 #include<iostream>
@@ -6,7 +6,7 @@
 #include <Windows.h>
 
 
-int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512]);
+int ReadData(LPCWSTR  drive, int readPoint, BYTE sector[512], int bytes);// thêm tham số bytes cần đọc -> đây không còn là hàm đọc sector nên t đổi tên
 
 uint64_t ReadIntReverse(uint8_t* byte, std::string offsetHex, unsigned int count);
 

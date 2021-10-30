@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DoAnHDH.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="FAT32.cpp" />
     <ClCompile Include="ReadData.cpp" />
     <ClCompile Include="TxtFile.cpp" />

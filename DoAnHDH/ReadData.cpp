@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
+int ReadData(LPCWSTR  drive, int readPoint, BYTE sector[512], int bytes)
 {
 	int retCode = 0;
 	DWORD bytesRead;
@@ -25,7 +25,7 @@ int ReadSector(LPCWSTR  drive, int readPoint, BYTE sector[512])
 
 	SetFilePointer(device, readPoint, NULL, FILE_BEGIN);//Set a Point to Read
 
-	if (!ReadFile(device, sector, 512, &bytesRead, NULL))
+	if (!ReadFile(device, sector, bytes, &bytesRead, NULL))
 	{
 		printf("ReadFile: %u\n", GetLastError());
 
