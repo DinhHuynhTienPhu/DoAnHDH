@@ -94,3 +94,33 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 	}
 	return result;
 }
+
+vector<BYTE> byteArray(vector<int> cluterArray, FAT32 volume)
+{	
+	vector<BYTE> ByteArray;
+
+	// Duyệt qua mảng các cluster
+	for (int i = 0; i < cluterArray.size(); i++)
+	{
+		int offsetStart = volume.reservedSectors * volume.bytesPerSector + volume.fatCount * volume.fatSize * volume.bytesPerSector + (cluterArray[i] - 2) * volume.sectorsPerCluster;
+		
+		// Mỗi cluster có số sector = sectorsPerCluster
+		// Đọc tất cả các sector của 1 cluster
+		for (int j = 0; j < volume.sectorsPerCluster; j++)
+		{
+			// Đúng ra ở đây số phần tử phải là volume.bytesPerSector nhưng mảng tỉnh kh cho :(((
+			BYTE sector[512];
+			
+			// ổ đĩa cần đọc, offset bắt đầu đọc, buffer, số byte đọc
+			ReadData(L"\\\\.\\F:", offsetStart + volume.bytesPerSector * j, sector, volume.bytesPerSector);
+
+			// Nối mảng sector vào ByteArray
+			for (int k = 0; k < volume.bytesPerSector; k++)
+			{
+				ByteArray.push_back(sector[k]);
+			}
+		}
+	}
+
+	return ByteArray;
+}
