@@ -1,4 +1,5 @@
 ﻿#include "ReadData.h"
+#include "FAT32.h"
 
 using namespace std;
 #pragma warning(disable:4996)
@@ -19,7 +20,7 @@ int main(int argc, char** argv)
 	//vector<int> a;
 	//a.push_back(2); // usb của tớ chỉ dùng 1 cluster và bắt đầu từ 2 nên tớ hard code lun
 	//
-	//vector<byte> b = byteArray(a, volume);
+	//vector<BYTE> b = volume.byteArray(a, volume);
 
 	//cout << "size of b: " << b.size() << endl;
 

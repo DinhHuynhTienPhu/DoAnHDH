@@ -4,8 +4,6 @@
 #include<iostream>
 #include<sstream>
 #include <Windows.h>
-#include "FAT32.h"
-#include <vector>
 
 int ReadData(LPCWSTR  drive, int readPoint, BYTE* sector, int bytes);// thêm tham số bytes cần đọc -> đây không còn là hàm đọc sector nên t đổi tên
 
@@ -16,5 +14,3 @@ int hexCharToInt(char a);
 std::string hexToString(std::string str);
 
 std::string ReadtoString(BYTE* data, std::string offsetHex, unsigned int bytes);
-
-vector<BYTE> byteArray(vector<int> cluterArray, FAT32 volume);

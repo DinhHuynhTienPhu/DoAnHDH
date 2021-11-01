@@ -41,3 +41,29 @@ void FAT32::print() const
 	cout << "+ Sector chua ban sao cua Bootsector: " << bootCopySector << endl;
 }
 
+vector<BYTE> FAT32::byteArray(vector<int> cluterArray, FAT32 volume)
+{
+	vector<BYTE> ByteArray;
+
+	// Duyệt qua mảng các cluster
+	for (int i = 0; i < cluterArray.size(); i++)
+	{
+		int offsetStart = volume.reservedSectors * volume.bytesPerSector + volume.fatCount * volume.fatSize * volume.bytesPerSector + (cluterArray[i] - 2) * volume.sectorsPerCluster;
+
+		// Mỗi cluster có số sector = sectorsPerCluster
+		int sizeOfCluster = volume.bytesPerSector * volume.sectorsPerCluster;
+		BYTE* cluster = new BYTE[sizeOfCluster];
+
+		// ổ đĩa cần đọc, offset bắt đầu đọc, buffer, số byte đọc
+		//ReadData(L"\\\\.\\D:", offsetStart, cluster, sizeOfCluster);
+		ReadData(L"\\\\.\\F:", offsetStart, cluster, sizeOfCluster);
+
+		// Nối mảng sector vào ByteArray
+		for (int j = 0; j < sizeOfCluster; j++)
+		{
+			ByteArray.push_back(cluster[j]);
+		}
+	}
+
+	return ByteArray;
+}
