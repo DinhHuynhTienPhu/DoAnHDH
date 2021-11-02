@@ -73,3 +73,29 @@ BYTE* FAT32::byteArray(vector<int> cluterArray, FAT32 volume)
 
 	return ByteArray;
 }
+vector<int> FAT32::clusterArray(int startCluster)
+{
+	vector<int>result;
+	int bytesPerFAT = fatSize * bytesPerSector, //số byte của bảng FAT
+		startOffset = reservedSectors * bytesPerSector; //offset đầu tiên của bảng FAT
+
+	BYTE* FAT = new BYTE[bytesPerFAT];
+	ReadData(drive,startOffset , FAT, bytesPerFAT);	// đọc bảng FAT
+
+	int cluster = startCluster,
+		offset;
+	string offsetHex;
+	std::stringstream ss;
+
+	while (cluster != 268435455)
+	{
+		result.push_back(cluster);
+		offset = cluster * 4;
+
+		ss.clear();
+		ss << std::hex << std::uppercase << offset;
+		ss >> offsetHex;
+		cluster = ReadIntReverse(FAT, offsetHex, 4);
+	}
+	return result;
+}
