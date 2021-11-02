@@ -5,6 +5,7 @@
 using namespace std;
 struct FAT32
 {
+	LPCWSTR drive;
 	string fatCategory;// //offset 52 - 8 bytes
 	string volumeType;//offset 15 - 1 byte, Loại volume được nhận biết bằng chuỗi thập lục phân (f8 là đĩa cứng)
 	int bytesPerSector; //offset B - 2 bytes
@@ -21,5 +22,5 @@ struct FAT32
 	int bootCopySector; //offset 32 - 2 bytes
 	void read(BYTE* sector);
 	void print() const;
-	vector<BYTE> byteArray(vector<int> cluterArray, FAT32 volume, LPCWSTR  drive);
+	BYTE* byteArray(vector<int> cluterArray, FAT32 volume);
 };

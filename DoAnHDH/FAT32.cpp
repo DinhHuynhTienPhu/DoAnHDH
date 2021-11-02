@@ -1,5 +1,5 @@
 ﻿#include "FAT32.h"
-
+#include <algorithm>
 #include "ReadData.h"
 
 void FAT32::read(BYTE* sector)
@@ -41,14 +41,16 @@ void FAT32::print() const
 	cout << "+ Sector chua ban sao cua Bootsector: " << bootCopySector << endl;
 }
 
-vector<BYTE> FAT32::byteArray(vector<int> cluterArray, FAT32 volume, LPCWSTR  drive)
+BYTE* FAT32::byteArray(vector<int> cluterArray, FAT32 volume)
 {
-	vector<BYTE> ByteArray;
+
+	BYTE* ByteArray = {};
+	int size = 0;//dữ liệu trả về ban đầu chưa được cấp phát
 
 	// Duyệt qua mảng các cluster
 	for (int i = 0; i < cluterArray.size(); i++)
 	{
-		int offsetStart = volume.reservedSectors * volume.bytesPerSector + volume.fatCount * volume.fatSize * volume.bytesPerSector + (cluterArray[i] - 2) * volume.sectorsPerCluster;
+		int offsetStart = (volume.reservedSectors + volume.fatCount * volume.fatSize  + (cluterArray[i] - 2) * volume.sectorsPerCluster) * volume.bytesPerSector;
 
 		// Mỗi cluster có số sector = sectorsPerCluster
 		int sizeOfCluster = volume.bytesPerSector * volume.sectorsPerCluster;
@@ -56,12 +58,17 @@ vector<BYTE> FAT32::byteArray(vector<int> cluterArray, FAT32 volume, LPCWSTR  dr
 
 		// ổ đĩa cần đọc, offset bắt đầu đọc, buffer, số byte đọc
 		ReadData(drive, offsetStart, cluster, sizeOfCluster);
+		size += sizeOfCluster;
 
-		// Nối mảng sector vào ByteArray
-		for (int j = 0; j < sizeOfCluster; j++)
+		BYTE* temp = (BYTE*)realloc(ByteArray, size);//cứ mỗi lần đọc lên 1 cluster mới, cấp phát cho 1 biến tạm temp 1 vùng dữ liệu 
+		if(temp!=NULL)
 		{
-			ByteArray.push_back(cluster[j]);
+			ByteArray = temp;
 		}
+		
+		copy(cluster, cluster + sizeOfCluster, ByteArray + size- sizeOfCluster);
+
+		
 	}
 
 	return ByteArray;

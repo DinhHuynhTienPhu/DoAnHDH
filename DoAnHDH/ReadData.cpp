@@ -30,11 +30,6 @@ int ReadData(LPCWSTR  drive, int readPoint, BYTE *sector, int bytes)
 		printf("ReadFile: %u\n", GetLastError());
 
 	}
-	else
-	{
-		printf("Success!\n");
-
-	}
 }
 
 
