@@ -7,8 +7,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	BYTE bootSector[512];
-	//ReadData(L"\\\\.\\D:", 0, bootSector, 512);// ổ đĩa cần đọc, offset đọc, buffer, số byte đọc
-	ReadData(L"\\\\.\\F:", 0, bootSector,512);// ổ đĩa cần đọc, offset đọc, buffer, số byte đọc
+	ReadData(L"\\\\.\\D:", 0, bootSector, 512);// ổ đĩa cần đọc, offset đọc, buffer, số byte đọc
 
 	FAT32 volume;
 	volume.read(bootSector);
@@ -20,7 +19,7 @@ int main(int argc, char** argv)
 	//vector<int> a;
 	//a.push_back(2); // usb của tớ chỉ dùng 1 cluster và bắt đầu từ 2 nên tớ hard code lun
 	//
-	//vector<BYTE> b = volume.byteArray(a, volume);
+	//vector<byte> b = volume.byteArray(a, volume, L"\\\\.\\F:"); // Đổi "F" thành tên ổ đĩa của mình nhá
 
 	//cout << "size of b: " << b.size() << endl;
 
