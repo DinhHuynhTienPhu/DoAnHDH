@@ -23,4 +23,5 @@ struct FAT32
 	void read(BYTE* sector);
 	void print() const;
 	BYTE* byteArray(vector<int> cluterArray, FAT32 volume);
+	vector<int> clusterArray(int startCluster);
 };
