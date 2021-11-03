@@ -89,3 +89,23 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 	}
 	return result;
 }
+string ReadtoStringi(BYTE* data, int offset, unsigned int bytes)//Tùng sửa tham số offset hàm này
+{
+
+	int len = offset + bytes;
+	stringstream ss;
+	ss << hex;
+	for (int i = offset; i < len; i++)
+	{
+		ss << setw(2) << setfill('0') << (int)data[i];
+		ss << " ";
+	}
+	string result;
+	while (!ss.eof())
+	{
+		string temp;
+		ss >> temp;
+		result += hexToString(temp);
+	}
+	return result;
+}
