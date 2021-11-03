@@ -14,7 +14,7 @@ void printTxtFile(vector<TxtFile> Files)
 		FileData = Files.at(i).data;
 		FileSize = Files.at(i).size;
 		cout << "FileName: " << FileName << endl;
-		cout << ReadtoString(FileData, "0",FileSize);
+		cout << printTextData(FileData, FileSize);
 		cout << "\n=====================\n";
 	}
 }

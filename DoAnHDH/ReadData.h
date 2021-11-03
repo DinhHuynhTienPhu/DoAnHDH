@@ -14,3 +14,5 @@ int hexCharToInt(char a);
 std::string hexToString(std::string str);
 
 std::string ReadtoString(BYTE* data, std::string offsetHex, unsigned int bytes);
+
+std::string printTextData(BYTE* data, int size);//xuất text từ byte*, nếu dùng hàm ReadtoString để in file text, tốc độ rất chậm

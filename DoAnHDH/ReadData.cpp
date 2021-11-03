@@ -89,3 +89,10 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 	}
 	return result;
 }
+
+//xuất text từ byte*, nếu dùng hàm ReadtoString để in file text, tốc độ rất chậm
+std::string printTextData(BYTE* data,int size)//có thể không cần đến size
+{
+	string text((char*)data);
+	return text;
+}

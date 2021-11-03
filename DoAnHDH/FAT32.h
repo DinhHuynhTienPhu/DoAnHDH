@@ -22,6 +22,6 @@ struct FAT32
 	int bootCopySector; //offset 32 - 2 bytes
 	void read(BYTE* sector);
 	void print() const;
-	BYTE* byteArray(vector<int> cluterArray, FAT32 volume);
+	BYTE* byteArray(vector<int> cluterArray);
 	vector<int> clusterArray(int startCluster);
 };
