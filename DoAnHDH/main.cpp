@@ -5,6 +5,9 @@
 using namespace std;
 #pragma warning(disable:4996)
 
+BYTE bootSector[512];
+FAT32 volume;
+LPCWSTR drive = L"\\\\.\\G:";
 
 bool* ConvertByteToBoolArray(byte b)
 {
@@ -75,19 +78,45 @@ void printInfoOfMainEntry(BYTE* e) {
 	if (ConvertByteToBoolArray(e[11])[5]) cout << "archive ";
 
 }
+byte* getArrayDataFromMainEntry(BYTE* e) {
+	uint64_t cluster = 0;
+	cout << (int)e[27] << (int)e[26] << (int)e[21] << (int)e[20];
+	cluster = (cluster << 8) | e[27];
+	cluster = (cluster << 8) | e[26];
+	cluster = (cluster << 8) | e[21];
+	cluster = (cluster << 8) | e[20];
+	cout << "\ncluster= " << cluster;
+	//vector<int> clusterArray= volume.clusterArray(cluster);
+	//return volume.byteArray(clusterArray);
+	return NULL;
+}
 
-void ReadRDETOrSDet(int sectorbatdau, int solantab, BYTE* mang, int sizemang) { //function đọc RDETorSDET, truyền vào sector bắt đầu và số lần tab (số lần tab cũng có nghĩa là số thư mục cha của rdet/sdet này, cũng có nghĩa là số lần đệ quy) 
+void ReadRDETOrSDet(int sectorbatdau, int solantab, BYTE* mang, int sizemang, bool isRdet) { //function đọc RDETorSDET, truyền vào sector bắt đầu và số lần tab (số lần tab cũng có nghĩa là số thư mục cha của rdet/sdet này, cũng có nghĩa là số lần đệ quy) 
 	//ý tưởng của hàm này là : có đặt vòng while, mỗi lần vòng while chạy xong cũng có nghĩa là đã đọc xong một fileorfolder của rdetorsdet
 	int i = sectorbatdau;
+	//if (isRdet == false) {
+	//	cout << "\nsizemang= " << sizemang;
+	//	cout << endl;
+	//	for (int z = 0; z < 16; z++) cout << z << "\t";
+	//	for (int z = 0; z < 512 * 10; z++) {
+	//		if (z % 16 == 0) cout << endl;
+	//		cout << mang[z] << "\t";
+
+	//	}
+	//	cout << endl;
+	//}
+
 	while (i < sizemang - 33) {
 		bool isFile = true; //is file or folder
 		bool isTxt = false;
 		int offsetSDET;
+		BYTE* arrayData = NULL;
+		int sizeOfArrayData;
+
 		BYTE* e = ReadRawEntry(i, mang); //đọc thô 1 entry
 		cout << endl;
 
-		//printEntry(e);
-		if (e[11] == 0x00) break;
+		if (e[0] == 0x00) break;
 		else if (e[11] != 0x0F) { //entry chinh
 			//nếu như e là chính => fileorfolder không có e phụ => lưu thông tin vào fileorfolder => nhảy đến bước xử lý file or folder
 			byte* e = ReadRawEntry(i, mang);
@@ -100,42 +129,63 @@ void ReadRDETOrSDet(int sectorbatdau, int solantab, BYTE* mang, int sizemang) { 
 				}
 			}
 			printInfoOfMainEntry(e);
+			arrayData = getArrayDataFromMainEntry(e);
 		}
 		else if (e[11] == 0x0F) {   //nếu e là phụ => chạy vòng while để đọc hết entry phụ(dồn vào tempname), đọc tiếp cả entry chính ngay sau đó =>lưu thông tin vào fileorfolder=>nhảy đến bước xử lý file or folder
-			vector<uint8_t> fullname1;
-			vector<uint8_t> fullname2;
-
+			vector<vector<uint8_t>> fullname1;
+			vector<uint8_t> tempentryname;
+			int entryNumber = 0;
 			e = ReadRawEntry(i, mang);
 			for (int l = 1; l < 32; l++) {
 				if (l == 1 || l == 3 || l == 5 || l == 7 || l == 9 || l == 14 || l == 16 || l == 18 || l == 20 || l == 22 || l == 24 || l == 28 || l == 30) {
 					char t = e[l];
-					fullname1.push_back(t);
+					tempentryname.push_back(t);
 				}
 			}
+			fullname1.push_back(tempentryname);
 			while (true) {
 				i += 32;
+				vector<uint8_t> tempentryname2;
 				BYTE* e2 = ReadRawEntry(i, mang);
 				if (e2[11] == 0x0F) {
 					for (int l = 1; l < 32; l++) {
 						if (l == 1 || l == 3 || l == 5 || l == 7 || l == 9 || l == 14 || l == 16 || l == 18 || l == 20 || l == 22 || l == 24 || l == 28 || l == 30) {
-							uint8_t t = e[l];
-							fullname2.push_back(t);
+							uint8_t t = e[l]; // dùng uint8_t vì ko hiểu sao char với byte bị lỗi
+							tempentryname2.push_back(t);
 						}
 					}
+					fullname1.push_back(tempentryname2);
 				}
 				else if (e2[11] != 0x0F) { //chinh
+					//arrayData = getArrayDataFromMainEntry(e2);
+					uint64_t cluster = 0;
+					//cout << (int)e[27] << (int)e[26] << (int)e[21] << (int)e[20];
+					cluster = (int)e[27] * 16 * 16 + (int)e[26] + (int)e[21] * pow(16, 6) + (int)e[20] * pow(16, 4);
+					vector<int> clusterArray = volume.clusterArray(cluster);
+					arrayData = volume.byteArray(clusterArray);
+					sizeOfArrayData = clusterArray.size() * volume.bytesPerSector * volume.sectorsPerCluster;
+
+					//cout << endl;
+					//for (int z = 0; z < 16; z++) cout << z << "\t";
+					//for (int z = 0; z < 512 * 10; z++) {
+					//	if (z % 16 == 0) cout << endl;
+					//	cout << arrayData[z] << "\t";
+
+					//}			
+					//cout << endl;
+
+					BYTE* e2 = ReadRawEntry(i, mang);
 					uint8_t temp = e2[11];
-					if (temp == 16) isFile = false;		
+					if (temp == 16) isFile = false;
 					else {
 						if ((e2[8] == 'T' && e2[9] == 'X' && e[10] == 'T')) isTxt = true;
 					}
-
-					for (int y = 0; y < fullname2.size(); y++) {
-						cout << (char)fullname2[y];
+					for (int z = 0; z < solantab; z++) cout << "   ";
+					for (int y = fullname1.size()-1; y >=0; y--) {
+						for (int p = 0; p < fullname1[y].size(); p++)
+							cout << (char)fullname1[y][p];
 					}
-					for (int y = 0; y < fullname1.size(); y++) {
-						cout << (char)fullname1[y];
-					}					
+
 
 					printInfoOfMainEntry(e2);
 					if (isFile) cout << " isFile "; else cout << " isFolder ";
@@ -152,12 +202,10 @@ void ReadRDETOrSDet(int sectorbatdau, int solantab, BYTE* mang, int sizemang) { 
 				//xu ly
 			}
 		}
-		else
+		else if(isFile==false)
 		{
 			//nếu là folder thì gọi lại hàm đọc ReadRDETOrSDet, truyền vào cluster bắt đầu của sdet của folder này, solantab + 1 (thụt vô dòng vì là folder con)
-			
-			//ReadRDETOrSDet(fileorfolder.GetSectorBatDau(), solantab + 1);
-
+			ReadRDETOrSDet(64, solantab + 1, arrayData, sizeOfArrayData, false);
 
 		}
 		i += 32;
@@ -165,9 +213,7 @@ void ReadRDETOrSDet(int sectorbatdau, int solantab, BYTE* mang, int sizemang) { 
 }
 int main(int argc, char** argv)
 {
-	BYTE bootSector[512];
-	FAT32 volume;
-	LPCWSTR drive = L"\\\\.\\G:";
+
 
 
 	ReadData(drive, 0, bootSector, 512);// ổ đĩa cần đọc, offset đọc, buffer, số byte đọc
@@ -186,8 +232,9 @@ int main(int argc, char** argv)
 		cout << cluster[i] << "\t";
 
 	}
+	cout << "new folder sector offset: " << volume.reservedSectors + volume.fatCount * volume.fatSize + (6 - 2) * volume.sectorsPerCluster;
 	cout << "\ntry1\n";
-	ReadRDETOrSDet(128, 0, cluster, 512 * 16);
+	ReadRDETOrSDet(128, 0, cluster, 512 * 16, true);
 
 	//for (int i = 128; i < 128 + 32; i++) cout << cluster[i] << "\t";
 	//cout << "\ntry2\n";
