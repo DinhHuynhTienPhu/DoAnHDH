@@ -1,6 +1,7 @@
 ﻿#include "FAT32.h"
 #include <algorithm>
 #include "ReadData.h"
+#include "TxtFile.h"
 
 void FAT32::read(BYTE* sector)
 {
@@ -41,46 +42,46 @@ void FAT32::print() const
 	cout << "+ Sector chua ban sao cua Bootsector: " << bootCopySector << endl;
 }
 
-BYTE* FAT32::byteArray(vector<int> cluterArray)
+vector<byte> byteArray(FAT32 volume,vector<int> cluterArray)
 {
 
-	BYTE* ByteArray = {};
-	int size = 0;//dữ liệu trả về ban đầu chưa được cấp phát
+	vector<BYTE> ByteArray;
 
 	// Duyệt qua mảng các cluster
 	for (int i = 0; i < cluterArray.size(); i++)
 	{
-		int offsetStart = (reservedSectors + fatCount * fatSize  + (cluterArray[i] - 2) * sectorsPerCluster) * bytesPerSector;
-
+		int offsetStart = (volume.reservedSectors + volume.fatCount * volume.fatSize + (cluterArray[i] - 2) * volume.sectorsPerCluster) * volume.bytesPerSector;
 		// Mỗi cluster có số sector = sectorsPerCluster
-		int sizeOfCluster = bytesPerSector * sectorsPerCluster;
+		int sizeOfCluster = volume.bytesPerSector * volume.sectorsPerCluster;
 		BYTE* cluster = new BYTE[sizeOfCluster];
 
 		// ổ đĩa cần đọc, offset bắt đầu đọc, buffer, số byte đọc
-		ReadData(drive, offsetStart, cluster, sizeOfCluster);
-		size += sizeOfCluster;
+		ReadData(volume.drive, offsetStart, cluster, sizeOfCluster);
 
-		BYTE* temp = (BYTE*)realloc(ByteArray, size);//cứ mỗi lần đọc lên 1 cluster mới, cấp phát cho 1 biến tạm temp 1 vùng dữ liệu 
-		if(temp!=NULL)
+		// Nối mảng sector vào ByteArray
+		for (int j = 0; j < sizeOfCluster; j++)
 		{
-			ByteArray = temp;
+			ByteArray.push_back(cluster[j]);
 		}
-		
-		copy(cluster, cluster + sizeOfCluster, ByteArray + size- sizeOfCluster);
-
-		
 	}
 
 	return ByteArray;
 }
-vector<int> FAT32::clusterArray(int startCluster)
+
+
+vector<int> clusterArray(FAT32 volume, int startCluster)
 {
 	vector<int>result;
-	int bytesPerFAT = fatSize * bytesPerSector, //số byte của bảng FAT
-		startOffset = reservedSectors * bytesPerSector; //offset đầu tiên của bảng FAT
+	if(startCluster<2)//có trường hợp file rỗng k có có cluster nào (start cluster = 0)
+	{
+		return result;//trả về luôn vector rỗng
+	}
+	
+	int bytesPerFAT = volume.fatSize * volume.bytesPerSector, //số byte của bảng FAT
+		startOffset = volume.reservedSectors * volume.bytesPerSector; //offset đầu tiên của bảng FAT
 
 	BYTE* FAT = new BYTE[bytesPerFAT];
-	ReadData(drive,startOffset , FAT, bytesPerFAT);	// đọc bảng FAT
+	ReadData(volume.drive,startOffset , FAT, bytesPerFAT);	// đọc bảng FAT
 
 	int cluster = startCluster,
 		offset;
@@ -98,4 +99,216 @@ vector<int> FAT32::clusterArray(int startCluster)
 		cluster = ReadIntReverse(FAT, offsetHex, 4);
 	}
 	return result;
+}
+
+vector<bool> ConvertByteToBoolArray(byte b)
+{
+
+	vector<bool> result;
+	bool value;
+	for (int i = 0; i < 8; i++)
+	{
+		value = (b & (1 << i)) == 0 ? false : true;
+		result.push_back(value);
+	}
+
+
+	return result;
+}
+
+vector<byte> ReadRawByte(int start, int length, vector<byte> data)
+{
+	byte value;
+	vector<byte> res;
+	for (int i = start; i < start + length; i++)
+	{
+		value = data[i];
+		res.push_back(value);
+	}
+	return res;
+}
+
+void printInfoOfMainEntry(vector<BYTE> e)
+{
+	cout << "  Trang thai:";
+	cout << "  ";
+	if (ConvertByteToBoolArray(e[11])[0]) cout << "read only ";
+	if (ConvertByteToBoolArray(e[11])[1]) cout << "hidden ";
+	if (ConvertByteToBoolArray(e[11])[2]) cout << "system ";
+	if (ConvertByteToBoolArray(e[11])[3]) cout << "volabel ";
+	if (ConvertByteToBoolArray(e[11])[4]) cout << "directory ";
+	if (ConvertByteToBoolArray(e[11])[5]) cout << "archive ";
+
+}
+
+void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume, vector<TxtFile> txtFiles)
+{
+	int i = start;
+	if (!isRdet) i += 64;
+	while (i < det.size())
+	{
+		vector<byte> entry = ReadRawByte(i, 32, det);
+
+		if (entry[0] == 0x0 || entry[0] == 0xE5)
+		{
+			i += 32;
+			continue;
+		}
+		if (entry[11] == 0x0F)//entry phu
+		{
+			string fileNameToken;
+			string fileName;
+
+			while (entry[11] == 0x0F)
+			{
+				for (int l = 1; l < 32; l++)
+				{
+					if (l == 1 || l == 3 || l == 5 || l == 7 || l == 9 || l == 14 || l == 16 || l == 18 || l == 20 || l == 22 || l == 24 || l == 28 || l == 30) {
+						char t = entry[l];
+						fileNameToken.push_back(t);
+					}
+				}
+				fileName.insert(0, fileNameToken);
+				fileNameToken.clear();
+				i += 32;
+				entry = ReadRawByte(i, 32, det);
+
+			}
+
+			//
+			vector<bool> status = ConvertByteToBoolArray(entry[11]);
+			if (status[4])//folder
+			{
+				folderHandler(fileName, entry, tab,volume,txtFiles);
+
+			}
+			else if (status[5])//file
+			{
+				string extension = fileName.substr(fileName.find_last_of('.') + 1);
+				fileHandler(fileName, extension, entry, tab,volume,txtFiles);
+
+			}
+		}
+		else//entry chinh
+		{
+			vector<bool> status = ConvertByteToBoolArray(entry[11]);
+			if (status[4])//folder
+			{
+				vector<byte> nameInByte = ReadRawByte(0, 11, entry);
+				nameInByte.push_back(0);// them /0 vao cuoi chuoi
+				byte* temp = &nameInByte[0];
+				string fileName((char*)temp);
+				folderHandler(fileName, entry, 0, volume,txtFiles);
+			}
+			else if (status[5])//file
+			{
+				vector<byte> nameInByte = ReadRawByte(0, 8, entry);
+				vector<byte> entensionInByte = ReadRawByte(8, 3, entry);
+
+				int i = 7;
+				while (nameInByte[i] == 0x20)
+				{
+					nameInByte.pop_back();
+
+					i--;
+				}
+				nameInByte.push_back(0);// them /0 vao cuoi chuoi
+				entensionInByte.push_back(0);// them /0 vao cuoi chuoi
+
+				byte* temp = &nameInByte[0];
+				byte* temp2 = &entensionInByte[0];
+				string name((char*)temp);
+				string extension((char*)temp2);
+				string fileName = name + "." + extension;
+
+				fileHandler(fileName, extension, entry, 0, volume, txtFiles);
+
+			}
+			else//label thi bo qua
+			{
+				i += 32;
+				continue;
+			}
+		}
+		i += 32;
+	}
+}
+
+void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> txtFiles)
+{
+	for (int i = 0; i < tab; i++)
+	{
+		cout << "\t";
+	}
+	cout << fileName;
+	cout << " | ";
+	printInfoOfMainEntry(entry);
+	cout << " | ";
+
+	vector<byte> highWordByte = ReadRawByte(0x14, 2, entry);
+	byte* highWord = highWordByte.data();
+	vector<byte> lowWordByte = ReadRawByte(0x1A, 2, entry);
+	byte* lowWord = lowWordByte.data();
+	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
+	vector<int> clusters = clusterArray(volume, startCluster);
+	cout << "Cac sector: ";
+	for (int i = 0; i < clusters.size(); i++)
+	{
+		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster;
+		cout << start << "->" << end << "; ";
+	}
+	cout << endl;
+
+	//de quy folder
+
+	vector<byte> sdet = byteArray(volume, clusters);
+	ReadEntries(0, tab + 1, sdet, false,volume, txtFiles);
+}
+
+void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> txtFiles)
+{
+	for (int i = 0; i < tab; i++)
+	{
+		cout << "\t";
+	}
+	cout << fileName;
+	cout << " | ";
+	printInfoOfMainEntry(entry);
+	cout << " | ";
+	int size = ReadIntReverse(&entry[0], "1C", 4);
+	cout << "Kich thuoc: " << size << " B";
+
+	cout << " | ";
+
+	vector<byte> highWordByte = ReadRawByte(0x14, 2, entry);
+	byte* highWord = highWordByte.data();
+	vector<byte> lowWordByte = ReadRawByte(0x1A, 2, entry);
+	byte* lowWord = lowWordByte.data();
+	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
+	vector<int> clusters = clusterArray(volume, startCluster);
+	cout << "Cac sector: ";
+	for (int i = 0; i < clusters.size(); i++)
+	{
+		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster;
+		cout << start << "->" << end << "; ";
+	}
+
+	cout << endl;
+
+	if (extension.find("TXT") != string::npos || extension.find("txt") != string::npos)
+	{
+		byte* temp = nullptr;
+		if (size != 0)
+		{
+			vector<byte> textData = byteArray(volume, clusters);
+			temp = new byte[size + 1];
+			copy(&textData[0], &textData[0] + size, temp);
+			temp[size] = 0;
+		}
+
+		TxtFile newFile{ fileName, temp,size };
+		txtFiles.push_back(newFile);
+	}
 }

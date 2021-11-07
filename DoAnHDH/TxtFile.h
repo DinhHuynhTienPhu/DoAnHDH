@@ -6,8 +6,8 @@
 using namespace std;
 struct TxtFile
 {
-	vector<vector<uint8_t>> name;
-	BYTE * data;
+	string name;
+	byte* data;
 	int size;
 	// nếu được thì xuất luôn có dấu
 };

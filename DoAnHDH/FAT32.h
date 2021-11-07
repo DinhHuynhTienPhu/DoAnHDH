@@ -1,7 +1,10 @@
 ﻿#pragma once
+#include <iostream>
 #include <Windows.h>
 #include <string>
 #include <vector>
+
+#include "TxtFile.h"
 using namespace std;
 struct FAT32
 {
@@ -22,6 +25,22 @@ struct FAT32
 	int bootCopySector; //offset 32 - 2 bytes
 	void read(BYTE* sector);
 	void print() const;
-	BYTE* byteArray(vector<int> cluterArray);
-	vector<int> clusterArray(int startCluster);
+	
 };
+vector<byte> byteArray(FAT32 volume, vector<int> cluterArray);
+vector<int> clusterArray(FAT32 volume, int startCluster);
+
+
+vector<bool> ConvertByteToBoolArray(byte b);
+
+vector<byte> ReadRawByte(int start, int length, vector<byte> data)//t doi ten vi o duoi t co xai de tach byte ra
+;
+
+
+void printInfoOfMainEntry(vector< BYTE> e);
+
+
+void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet,FAT32 volume,vector<TxtFile> txtFiles);
+
+void folderHandler(string fileName, vector< byte> entry, int tab, FAT32 volume, vector< TxtFile> txtFiles);
+void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume, vector<TxtFile> txtFiles);

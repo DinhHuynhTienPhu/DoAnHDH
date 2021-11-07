@@ -1,5 +1,7 @@
 ﻿#include "ReadData.h"
 
+#include <vector>
+
 
 using namespace std;
 
@@ -91,8 +93,25 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 }
 
 //xuất text từ byte*, nếu dùng hàm ReadtoString để in file text, tốc độ rất chậm
-std::string printTextData(BYTE* data,int size)//có thể không cần đến size
+void printTextData(byte* data,int size)//có thể không cần đến size
 {
-	string text((char*)data);
-	return text;
+	if(data!=nullptr)
+	{
+		string text((char*)data);
+
+		cout << text;
+	}
+	
+}
+
+std::wstring s2ws(const std::string& s)
+{
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	std::wstring r(buf);
+	delete[] buf;
+	return r;
 }
