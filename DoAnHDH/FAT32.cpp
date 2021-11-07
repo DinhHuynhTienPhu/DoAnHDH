@@ -252,10 +252,37 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
 	vector<int> clusters = clusterArray(volume, startCluster);
 	cout << "Cac sector: ";
-	for (int i = 0; i < clusters.size(); i++)
+	if (clusters.size() <= 1)
 	{
-		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
-		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster;
+		for (int i = 0; i < clusters.size(); i++)
+		{
+			int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+			int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
+			cout << start << "->" << end << "; ";
+		}
+	}
+	else
+	{
+		clusters.push_back(-1);
+		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster;
+		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
+		int nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[1] - 2) * volume.sectorsPerCluster;
+		for (int i = 1; i < clusters.size() - 1; i++)
+		{
+			if (nextSector != end + 1)
+			{
+				cout << start << "->" << end << "; ";
+				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
+				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
+
+			}
+			else
+			{
+				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
+				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
+			}
+		}
 		cout << start << "->" << end << "; ";
 	}
 	cout << endl;
@@ -288,10 +315,44 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
 	vector<int> clusters = clusterArray(volume, startCluster);
 	cout << "Cac sector: ";
-	for (int i = 0; i < clusters.size(); i++)
+	/*for (int i = 0; i < clusters.size(); i++)
 	{
 		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster;
+		cout << start << "->" << end << "; ";
+	}*/
+
+	if (clusters.size() <= 1)
+	{
+		for (int i = 0; i < clusters.size(); i++)
+		{
+			int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+			int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
+			cout << start << "->" << end << "; ";
+		}
+	}
+	else
+	{
+		clusters.push_back(-1);
+		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster;
+		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster-1;
+		int nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[1] - 2) * volume.sectorsPerCluster;
+		for (int i = 1; i < clusters.size() - 1; i++)
+		{
+			if (nextSector != end + 1)
+			{
+				cout << start << "->" << end << "; ";
+				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
+				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
+				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
+
+			}
+			else
+			{
+				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
+				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
+			}
+		}
 		cout << start << "->" << end << "; ";
 	}
 

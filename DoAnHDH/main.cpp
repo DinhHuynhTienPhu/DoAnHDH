@@ -1,7 +1,6 @@
 ﻿#include "ReadData.h"
 #include "FAT32.h"
 #include"TxtFile.h"
-
 #include<conio.h>
 using namespace std;
 #pragma warning(disable:4996)
