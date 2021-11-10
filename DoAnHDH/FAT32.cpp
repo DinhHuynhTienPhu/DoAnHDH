@@ -198,7 +198,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				nameInByte.push_back(0);// them /0 vao cuoi chuoi
 				byte* temp = &nameInByte[0];
 				string fileName((char*)temp);
-				folderHandler(fileName, entry, 0, volume,txtFiles);
+				folderHandler(fileName, entry, tab, volume,txtFiles);// bug
 			}
 			else if (status[5])//file
 			{
@@ -221,7 +221,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				string extension((char*)temp2);
 				string fileName = name + "." + extension;
 
-				fileHandler(fileName, extension, entry, 0, volume, txtFiles);
+				fileHandler(fileName, extension, entry, tab, volume, txtFiles);//:)) bug
 
 			}
 			else//label thi bo qua
