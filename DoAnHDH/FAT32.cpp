@@ -141,7 +141,7 @@ void printInfoOfMainEntry(vector<BYTE> e)
 
 }
 
-void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume, vector<TxtFile> txtFiles)
+void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume, vector<TxtFile> &txtFiles)
 {
 	int i = start;
 	if (!isRdet) i += 64;
@@ -234,7 +234,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 	}
 }
 
-void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> txtFiles)
+void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles)
 {
 	for (int i = 0; i < tab; i++)
 	{
@@ -293,7 +293,7 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 	ReadEntries(0, tab + 1, sdet, false,volume, txtFiles);
 }
 
-void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> txtFiles)
+void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> &txtFiles)
 {
 	for (int i = 0; i < tab; i++)
 	{

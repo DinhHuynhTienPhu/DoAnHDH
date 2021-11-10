@@ -40,7 +40,7 @@ vector<byte> ReadRawByte(int start, int length, vector<byte> data)//t doi ten vi
 void printInfoOfMainEntry(vector< BYTE> e);
 
 
-void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet,FAT32 volume,vector<TxtFile> txtFiles);
+void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet,FAT32 volume,vector<TxtFile> &txtFiles);
 
-void folderHandler(string fileName, vector< byte> entry, int tab, FAT32 volume, vector< TxtFile> txtFiles);
-void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume, vector<TxtFile> txtFiles);
+void folderHandler(string fileName, vector< byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles);
+void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume, vector<TxtFile> &txtFiles);
