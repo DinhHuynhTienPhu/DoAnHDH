@@ -1,8 +1,5 @@
-﻿#include "ReadData.h"
-
+#include "ReadData.h"
 #include <vector>
-
-
 using namespace std;
 
 int ReadData(LPCWSTR  drive, int readPoint, BYTE *sector, int bytes)
@@ -33,8 +30,6 @@ int ReadData(LPCWSTR  drive, int readPoint, BYTE *sector, int bytes)
 
 	}
 }
-
-
 uint64_t ReadIntReverse(uint8_t* byte, string offsetHex, unsigned int count)
 {
 	/*truyền vào toàn bộ mảng, vị trí bắt đầu (hexString), số lượng byte đọc
@@ -49,7 +44,6 @@ uint64_t ReadIntReverse(uint8_t* byte, string offsetHex, unsigned int count)
 
 	return result;
 }
-
 int hexCharToInt(char a) {
 	if (a >= '0' && a <= '9')
 		return(a - 48);
@@ -68,12 +62,9 @@ string hexToString(string str) {
 	}
 	return HexString.str();
 }
-
-
 string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng sửa tham số offset hàm này
 {
 	const int offset = stoi(offsetHex, nullptr, 16);
-
 	int len = offset + bytes;
 	stringstream ss;
 	ss << hex;
@@ -91,22 +82,21 @@ string ReadtoString(BYTE* data, string offsetHex, unsigned int bytes)//Tùng s�
 	}
 	return result;
 }
-
 //xuất text từ byte*, nếu dùng hàm ReadtoString để in file text, tốc độ rất chậm
 void printTextData(byte* data,int size)//có thể không cần đến size
 {
 	if(data!=nullptr)
 	{
 		string text((char*)data);
-
-		cout << text;
+	    wstring text01;
+		wcout << text01.assign(text.begin(), text.end());
 	}
 	
 }
-
 std::wstring s2ws(const std::string& s)
 {
 	int len;
+	
 	int slength = (int)s.length() + 1;
 	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
 	wchar_t* buf = new wchar_t[len];
