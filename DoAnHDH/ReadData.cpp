@@ -1,4 +1,4 @@
-﻿#include "ReadData.h"
+#include "ReadData.h"
 
 #include <vector>
 

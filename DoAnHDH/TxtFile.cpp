@@ -10,12 +10,14 @@ void printTxtFile(vector<TxtFile> Files)
 	int FileSize;
 	for (int i = 0; i < Files.size(); i++)
 	{
+		cout << "File " << i+1 << ": \n";
 		FileName = Files.at(i).name;
 		FileData = Files.at(i).data;
 		FileSize = Files.at(i).size;
-		cout << "FileName: " << FileName;
-		
+		cout << "- FileName: " << FileName;
 		cout << endl;
+		
+		cout<<"- Content:\n";
 		printTextData(FileData, FileSize);
 		cout << "\n=====================\n";
 	}

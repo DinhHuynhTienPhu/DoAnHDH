@@ -9,6 +9,5 @@ struct TxtFile
 	string name;
 	byte* data;
 	int size;
-	// nếu được thì xuất luôn có dấu
 };
 void  printTxtFile(vector<TxtFile> Files);

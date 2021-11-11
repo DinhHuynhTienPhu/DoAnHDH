@@ -1,4 +1,4 @@
-﻿#include "FAT32.h"
+#include "FAT32.h"
 #include <algorithm>
 #include "ReadData.h"
 #include "TxtFile.h"

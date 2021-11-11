@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <iostream>
 #include <Windows.h>
 #include <string>
@@ -29,17 +29,9 @@ struct FAT32
 };
 vector<byte> byteArray(FAT32 volume, vector<int> cluterArray);
 vector<int> clusterArray(FAT32 volume, int startCluster);
-
-
 vector<bool> ConvertByteToBoolArray(byte b);
-
-vector<byte> ReadRawByte(int start, int length, vector<byte> data)//t doi ten vi o duoi t co xai de tach byte ra
-;
-
-
+vector<byte> ReadRawByte(int start, int length, vector<byte> data);//t doi ten vi o duoi t co xai de tach byte ra
 void printInfoOfMainEntry(vector< BYTE> e);
-
-
 void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet,FAT32 volume,vector<TxtFile> &txtFiles);
 
 void folderHandler(string fileName, vector< byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles);
