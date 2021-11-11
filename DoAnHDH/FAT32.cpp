@@ -1,8 +1,8 @@
-﻿#include "FAT32.h"
+#include "FAT32.h"
 #include <algorithm>
 #include "ReadData.h"
 #include "TxtFile.h"
-
+#include "wchar.h"
 void FAT32::read(BYTE* sector)
 {
 	fatCategory = ReadtoString(sector, "52", 8);// //offset 52 - 8 bytes
@@ -26,22 +26,26 @@ void FAT32::read(BYTE* sector)
 
 void FAT32::print() const
 {
-	cout << "+ Loai FAT: " << fatCategory << endl;
-	cout << "+ Loai volume: " << volumeType << endl;
-	cout << "+ So byte cua sector: " << bytesPerSector << " bytes" << endl;
-	cout << "+ So sector tren cluster: SC = " << sectorsPerCluster << " sectors" << endl;
-	cout << "+ So sector thuoc vung Bootsector: SB = " << reservedSectors << " sectors" << endl;
-	cout << "+ So bang FAT: NF = " << fatCount << endl;
-	cout << "+ So sector cua track: " << sectorsPerTrack << " sectors" << endl;
-	cout << "+ So luong dau doc: " << headsCount << endl;
-	cout << "+ So sector an truoc volume: " << hiddenSectors << " sectors" << endl;
-	cout << "+ Kich thuoc volume: SV = " << volumeSize << " sectors" << endl;
-	cout << "+ Kich thuoc moi bang FAT: SF = " << fatSize << " sectors" << endl;
-	cout << "+ Cluster bat dau cua RDET: " << startCluster << endl;
-	cout << "+ Sector chua thong tin phu (ve cluster trong): " << secondaryInfoSector << endl;
-	cout << "+ Sector chua ban sao cua Bootsector: " << bootCopySector << endl;
-}
+	wstring temp;
 
+	wcout << L"+ Loại FAT ";
+	wcout << temp.assign(fatCategory.begin(), fatCategory.end()) << endl;
+	wcout << L"+ Loại Volume: ";
+	wstring temp01;
+	wcout << temp01.assign(volumeType.begin(), volumeType.end()) << endl;
+	wcout << L"+ Số byte của sector: " << bytesPerSector << " bytes" << endl;
+	wcout << L"+ Số sector trên cluster: SC = " << sectorsPerCluster << " sectors" << endl;
+	wcout << L"+ Số sector thuộc vùng Bootsector: SB = " << reservedSectors << " sectors" << endl;
+	wcout << L"+ Số bảng FAT: NF = " << fatCount << endl;
+	wcout << L"+ Số sector của track: " << sectorsPerTrack << " sectors" << endl;
+	wcout << L"+ Số lượng đầu đọc " << headsCount << endl;
+	wcout << L"+ Số sector ẩn trước volume: " << hiddenSectors << " sectors" << endl;
+	wcout << L"+ Kích thước volume: SV = " << volumeSize << " sectors" << endl;
+	wcout << L"+ Kich thước mới bằng FAT: SF = " << fatSize << " sectors" << endl;
+	wcout << L"+ Cluster bắt đầu cua RDET: " << startCluster << endl;
+	wcout << L"+ Sector chứa thông tin phụ (về cluster trống): " << secondaryInfoSector << endl;
+	wcout << L"+ Sector chứa bản sao của Bootsector: " << bootCopySector << endl;
+}
 vector<byte> byteArray(FAT32 volume,vector<int> cluterArray)
 {
 
@@ -130,19 +134,20 @@ vector<byte> ReadRawByte(int start, int length, vector<byte> data)
 
 void printInfoOfMainEntry(vector<BYTE> e)
 {
-	cout << "  Trang thai:";
-	cout << "  ";
-	if (ConvertByteToBoolArray(e[11])[0]) cout << "read only ";
-	if (ConvertByteToBoolArray(e[11])[1]) cout << "hidden ";
-	if (ConvertByteToBoolArray(e[11])[2]) cout << "system ";
-	if (ConvertByteToBoolArray(e[11])[3]) cout << "volabel ";
-	if (ConvertByteToBoolArray(e[11])[4]) cout << "directory ";
-	if (ConvertByteToBoolArray(e[11])[5]) cout << "archive ";
+	wcout << L"  Trạng thái:";
+	wcout << "  ";
+	if (ConvertByteToBoolArray(e[11])[0]) wcout << "read only ";
+	if (ConvertByteToBoolArray(e[11])[1]) wcout << "hidden ";
+	if (ConvertByteToBoolArray(e[11])[2]) wcout << "system ";
+	if (ConvertByteToBoolArray(e[11])[3]) wcout << "volabel ";
+	if (ConvertByteToBoolArray(e[11])[4]) wcout << "directory ";
+	if (ConvertByteToBoolArray(e[11])[5]) wcout << "archive ";
 
 }
 
 void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume, vector<TxtFile> &txtFiles)
 {
+
 	int i = start;
 	if (!isRdet) i += 64;
 	while (i < det.size())
@@ -156,8 +161,8 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 		}
 		if (entry[11] == 0x0F)//entry phu
 		{
-			string fileNameToken;
-			string fileName;
+			wstring fileNameToken;
+			wstring fileName;
 
 			while (entry[11] == 0x0F)
 			{
@@ -184,7 +189,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 			}
 			else if (status[5])//file
 			{
-				string extension = fileName.substr(fileName.find_last_of('.') + 1);
+				wstring extension = fileName.substr(fileName.find_last_of('.') + 1);
 				fileHandler(fileName, extension, entry, tab,volume,txtFiles);
 
 			}
@@ -198,7 +203,8 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				nameInByte.push_back(0);// them /0 vao cuoi chuoi
 				byte* temp = &nameInByte[0];
 				string fileName((char*)temp);
-				folderHandler(fileName, entry, tab, volume,txtFiles);// bug
+				wstring temp01= temp01.assign(fileName.begin(), fileName.end());
+				folderHandler(temp01, entry, tab, volume,txtFiles);// bug
 			}
 			else if (status[5])//file
 			{
@@ -218,10 +224,12 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				byte* temp = &nameInByte[0];
 				byte* temp2 = &entensionInByte[0];
 				string name((char*)temp);
+				//wstring name01= name01.assign(name.begin(), name.end());
 				string extension((char*)temp2);
+				wstring extension01=extension01.assign(extension.begin(), extension.end());
 				string fileName = name + "." + extension;
-
-				fileHandler(fileName, extension, entry, tab, volume, txtFiles);//:)) bug
+				wstring fileName01=fileName01.assign(fileName.begin(), fileName.end());
+				fileHandler(fileName01, extension01, entry, tab, volume, txtFiles);//:)) bug
 
 			}
 			else//label thi bo qua
@@ -234,16 +242,16 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 	}
 }
 
-void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles)
+void folderHandler(wstring fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles)
 {
 	for (int i = 0; i < tab; i++)
 	{
-		cout << "\t";
+		wcout << "\t";
 	}
-	cout << fileName;
-	cout << " | ";
+	wcout << fileName;
+	wcout << " | ";
 	printInfoOfMainEntry(entry);
-	cout << " | ";
+	wcout << " | ";
 
 	vector<byte> highWordByte = ReadRawByte(0x14, 2, entry);
 	byte* highWord = highWordByte.data();
@@ -251,14 +259,14 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 	byte* lowWord = lowWordByte.data();
 	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
 	vector<int> clusters = clusterArray(volume, startCluster);
-	cout << "Cac sector: ";
+	wcout << L"Các sector: ";
 	if (clusters.size() <= 1)
 	{
 		for (int i = 0; i < clusters.size(); i++)
 		{
 			int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 			int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
-			cout << start << "->" << end << "; ";
+			wcout << start << "->" << end << "; ";
 		}
 	}
 	else
@@ -271,7 +279,7 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 		{
 			if (nextSector != end + 1)
 			{
-				cout << start << "->" << end << "; ";
+				wcout << start << "->" << end << "; ";
 				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
@@ -283,9 +291,9 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
 			}
 		}
-		cout << start << "->" << end << "; ";
+		wcout << start << "->" << end << "; ";
 	}
-	cout << endl;
+	wcout << endl;
 
 	//de quy folder
 
@@ -293,20 +301,20 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 	ReadEntries(0, tab + 1, sdet, false,volume, txtFiles);
 }
 
-void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> &txtFiles)
+void fileHandler(wstring fileName, wstring extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> &txtFiles)
 {
 	for (int i = 0; i < tab; i++)
 	{
-		cout << "\t";
+		wcout << "\t";
 	}
-	cout << fileName;
-	cout << " | ";
+	wcout << fileName;
+	wcout << " | ";
 	printInfoOfMainEntry(entry);
-	cout << " | ";
+	wcout << " | ";
 	int size = ReadIntReverse(&entry[0], "1C", 4);
-	cout << "Kich thuoc: " << size << " B";
+	wcout << L"Kích thuoc: " << size << " B";
 
-	cout << " | ";
+	wcout << " | ";
 
 	vector<byte> highWordByte = ReadRawByte(0x14, 2, entry);
 	byte* highWord = highWordByte.data();
@@ -314,12 +322,12 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 	byte* lowWord = lowWordByte.data();
 	int startCluster = ReadIntReverse(highWord, "0", 2) * 256 + ReadIntReverse(lowWord, "0", 2);
 	vector<int> clusters = clusterArray(volume, startCluster);
-	cout << "Cac sector: ";
+	wcout << L"Các sector: ";
 	/*for (int i = 0; i < clusters.size(); i++)
 	{
 		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster;
-		cout << start << "->" << end << "; ";
+		wcout << start << "->" << end << "; ";
 	}*/
 
 	if (clusters.size() <= 1)
@@ -328,7 +336,7 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 		{
 			int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 			int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
-			cout << start << "->" << end << "; ";
+			wcout << start << "->" << end << "; ";
 		}
 	}
 	else
@@ -341,7 +349,7 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 		{
 			if (nextSector != end + 1)
 			{
-				cout << start << "->" << end << "; ";
+				wcout << start << "->" << end << "; ";
 				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
 				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
@@ -353,12 +361,11 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
 			}
 		}
-		cout << start << "->" << end << "; ";
+		wcout << start << "->" << end << "; ";
 	}
 
-	cout << endl;
-
-	if (extension.find("TXT") != string::npos || extension.find("txt") != string::npos)
+	wcout << endl;
+	if (extension.find(L"TXT") != string::npos || extension.find(L"txt") != string::npos)
 	{
 		byte* temp = nullptr;
 		if (size != 0)
