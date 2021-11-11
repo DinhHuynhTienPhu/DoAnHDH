@@ -6,9 +6,8 @@
 using namespace std;
 struct TxtFile
 {
-	string name;
+	wstring name;
 	byte* data;
 	int size;
-	// nếu được thì xuất luôn có dấu
 };
 void  printTxtFile(vector<TxtFile> Files);
