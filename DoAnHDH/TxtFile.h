@@ -6,7 +6,7 @@
 using namespace std;
 struct TxtFile
 {
-	wstring name;
+	string name;
 	byte* data;
 	int size;
 };
