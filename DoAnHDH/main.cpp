@@ -11,6 +11,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	//cout << "=======================PROJECT 01==========================\n";
 	//BYTE bootSector[512];
 	//FAT32 volume;
 	//vector<TxtFile> txtFiles;
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
 
 	//volume.read(bootSector);
 	//volume.print();
-
+	//cout << "\n========================\n";
 	//cout << "Nhan Enter de xem cay thu muc:";
 	//getch();
 	//cout << endl;
@@ -33,7 +34,8 @@ int main(int argc, char** argv)
 	//vector<byte> rdetData = byteArray(volume,rdetClusters);
 	//
 	//ReadEntries(0, 0, rdetData, true,volume,txtFiles);
-	//cout << "\n***************txt file**************\n";
+	//cout << "\n========================\n";
+	//cout << "\nXuat noi dung cac file txt\n";
 	//printTxtFile(txtFiles);
 
 	BYTE bootSectorNTFS[512];
