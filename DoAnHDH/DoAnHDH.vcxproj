@@ -141,11 +141,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FAT32.cpp" />
+    <ClCompile Include="NTFS.cpp" />
     <ClCompile Include="ReadData.cpp" />
     <ClCompile Include="TxtFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FAT32.h" />
+    <ClInclude Include="NTFS.h" />
     <ClInclude Include="ReadData.h" />
     <ClInclude Include="TxtFile.h" />
   </ItemGroup>
