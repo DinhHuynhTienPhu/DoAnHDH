@@ -5,18 +5,19 @@
 
 void printTxtFile(vector<TxtFile> Files)
 {
-	string  FileName;
+	wstring  FileName;
 	byte* FileData;
 	int FileSize;
 	for (int i = 0; i < Files.size(); i++)
 	{
+		wcout << "File " << i+1 << ": \n";
 		FileName = Files.at(i).name;
 		FileData = Files.at(i).data;
 		FileSize = Files.at(i).size;
-		cout << "FileName: " << FileName;
-		
-		cout << endl;
+		wcout << "- FileName: " << FileName;
+		wcout << endl;
+		wcout << "- Content:\n";
 		printTextData(FileData, FileSize);
-		cout << "\n=====================\n";
+		wcout << "\n=====================\n";
 	}
 }
