@@ -1,10 +1,15 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <iomanip>
 #include<iostream>
 #include<sstream>
 #include <vector>
 #include <Windows.h>
+#include<conio.h>
+#include <io.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <algorithm>
 
 int ReadData(LPCWSTR drive, int readPoint, BYTE* sector, int bytes);// thêm tham số bytes cần đọc -> đây không còn là hàm đọc sector nên t đổi tên
 
