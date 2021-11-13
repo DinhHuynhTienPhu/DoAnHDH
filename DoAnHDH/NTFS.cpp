@@ -19,7 +19,7 @@ void NTFS::print() const
 	cout << "+ So sector tren cluster: " << sectorsPerCluster << " sectors" << endl;
 	cout << "+ So sector cua track: " << sectorsPerTrack << " sectors" << endl;
 	cout << "+ So luong dau doc: " << headsCount << endl;
-	cout << "+ Sector bat dau cua o dia logic: " << sectorStart << " sectors" << endl;
+	cout << "+ Sector bat dau cua o dia logic: " << sectorStart << endl;
 	cout << "+ So sector cua o dia: " << driveSize << " sectors" << endl;
 	cout << "+ Cluster bat dau cua MFT: " << startCluster << endl;
 	cout << "+ Kich thuoc cua MFT: " << mtfSize << " bytes" << endl;
@@ -42,13 +42,6 @@ string getBit(int x) {
 	}
 
 	return bits;
-}
-
-void getNotBit(string bit) {
-	for (int i = 0; i < bit.size(); i++)
-	{
-
-	}
 }
 
 int bitToInt(string bit) {

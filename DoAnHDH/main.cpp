@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 		volume.read(bootSector);
 		volume.print();
 		cout << "\n========================\n";
-		cout << "Nhan Enter de xem cay thu muc:";
+		cout << "Nhan Enter de xem cay thu muc (mo che do toan man hinh de nhin cay thu muc ro hon):";
 		getch();
 		cout << endl;
 		vector<int> rdetClusters = clusterArray(volume, volume.startCluster);

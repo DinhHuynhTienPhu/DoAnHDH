@@ -144,7 +144,7 @@ void printInfoOfMainEntry(vector<BYTE> e)
 void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume, vector<TxtFile> &txtFiles)
 {
 	int i = start;
-	if (!isRdet) i += 64;
+	if (!isRdet) i += 64;// bo qua 2 entry dau cua cac entry phu
 	while (i < det.size())
 	{
 		vector<byte> entry = ReadRawByte(i, 32, det);
@@ -163,7 +163,8 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 			{
 				for (int l = 1; l < 32; l++)
 				{
-					if (l == 1 || l == 3 || l == 5 || l == 7 || l == 9 || l == 14 || l == 16 || l == 18 || l == 20 || l == 22 || l == 24 || l == 28 || l == 30) {
+					if (l == 1 || l == 3 || l == 5 || l == 7 || l == 9 || l == 14 || l == 16 || l == 18 || l == 20 || l == 22 || l == 24 || l == 28 || l == 30) //chỉ làm được tên file không dấu
+					{
 						char t = entry[l];
 						fileNameToken.push_back(t);
 					}
@@ -198,7 +199,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				nameInByte.push_back(0);// them /0 vao cuoi chuoi
 				byte* temp = &nameInByte[0];
 				string fileName((char*)temp);
-				folderHandler(fileName, entry, tab, volume,txtFiles);// bug
+				folderHandler(fileName, entry, tab, volume,txtFiles);
 			}
 			else if (status[5])//file
 			{
@@ -224,7 +225,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 				fileHandler(fileName, extension, entry, tab, volume, txtFiles);//:)) bug
 
 			}
-			else//label thi bo qua
+			else//không là file hoặc folder thì bỏ qua
 			{
 				i += 32;
 				continue;
@@ -236,7 +237,7 @@ void ReadEntries(int start, int tab, vector<BYTE> det, bool isRdet, FAT32 volume
 
 void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, vector< TxtFile> &txtFiles)
 {
-	for (int i = 0; i < tab; i++)
+	for (int i = 0; i < tab; i++)//tab ra
 	{
 		cout << "\t";
 	}
@@ -269,7 +270,7 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 		int nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[1] - 2) * volume.sectorsPerCluster;
 		for (int i = 1; i < clusters.size() - 1; i++)
 		{
-			if (nextSector != end + 1)
+			if (nextSector != end + 1)// nếu 2 cluster không liên tục thì xuất ra luôn, vd: 128->135; 144->151
 			{
 				cout << start << "->" << end << "; ";
 				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
@@ -277,7 +278,7 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
 
 			}
-			else
+			else// nếu 2 cluster liên tục thì chưa xuất vội, cộng dồn end đến khi end+1 khác nextSector mới xuất ra một lần
 			{
 				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster - 1;
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
@@ -287,10 +288,10 @@ void folderHandler(string fileName, vector<byte> entry, int tab, FAT32 volume, v
 	}
 	cout << endl;
 
-	//de quy folder
+		//de quy folder, tab + 1
 
-	vector<byte> sdet = byteArray(volume, clusters);
-	ReadEntries(0, tab + 1, sdet, false,volume, txtFiles);
+		vector<byte> sdet = byteArray(volume, clusters);
+		ReadEntries(0, tab + 1, sdet, false,volume, txtFiles);
 }
 
 void fileHandler(string fileName, string extension, vector<byte> entry, int tab, FAT32 volume,vector<TxtFile> &txtFiles)
@@ -333,13 +334,13 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 	}
 	else
 	{
-		clusters.push_back(-1);
+		clusters.push_back(-1);//vì vòng lặp dưới sẽ truy xuất đến phần tử cuối + 1
 		int start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster;
 		int end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[0] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster-1;
 		int nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[1] - 2) * volume.sectorsPerCluster;
 		for (int i = 1; i < clusters.size() - 1; i++)
 		{
-			if (nextSector != end + 1)
+			if (nextSector != end + 1)// nếu 2 cluster không liên tục thì xuất ra luôn, vd: 128->135; 144->151
 			{
 				cout << start << "->" << end << "; ";
 				start = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster;
@@ -347,7 +348,7 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
 
 			}
-			else
+			else// nếu 2 cluster liên tục thì chưa xuất vội, cộng dồn end đến khi end+1 khác nextSector mới xuất ra một lần
 			{
 				end = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i] - 2) * volume.sectorsPerCluster + volume.sectorsPerCluster -1;
 				nextSector = volume.reservedSectors + volume.fatCount * volume.fatSize + (clusters[i + 1] - 2) * volume.sectorsPerCluster;
@@ -356,10 +357,11 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 		cout << start << "->" << end << "; ";
 	}
 
-	cout << endl;
+	
 
 	if (extension.find("TXT") != string::npos || extension.find("txt") != string::npos)
 	{
+
 		byte* temp = nullptr;
 		if (size != 0)
 		{
@@ -371,5 +373,11 @@ void fileHandler(string fileName, string extension, vector<byte> entry, int tab,
 
 		TxtFile newFile{ fileName, temp,size };
 		txtFiles.push_back(newFile);
+		cout << "Da luu lai file txt, se xuat sau cay thu muc";
 	}
+	else
+	{
+		cout << "Hay dung phan mem tuong thich de doc noi dung";
+	}
+	cout << endl;
 }
